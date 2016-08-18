@@ -1,0 +1,73 @@
+Filename	Trial	Phase	Subphase	Starting_time
+SNAP Control Backward Intrans-Apple ProRes 422_xvid.avi	IntransBackward	IntransBackward	SalienceBIFF	0
+SNAP Control Backward Intrans-Apple ProRes 422_xvid.avi	IntransBackward	IntransBackward	StarBIFF	25.08
+SNAP Control Backward Intrans-Apple ProRes 422_xvid.avi	IntransBackward	IntransBackward	ResponseBIFF	28.04
+SNAP Control Backward Intrans-Apple ProRes 422_xvid.avi	IntransBackward	IntransBackward	SalienceLORP	44.48
+SNAP Control Backward Intrans-Apple ProRes 422_xvid.avi	IntransBackward	IntransBackward	StarLORP	69.56
+SNAP Control Backward Intrans-Apple ProRes 422_xvid.avi	IntransBackward	IntransBackward	ResponseLORP	72.56
+SNAP Control Backward Intrans-Apple ProRes 422_xvid.avi	IntransBackward	IntransBackward	SalienceMOOP	88.96
+SNAP Control Backward Intrans-Apple ProRes 422_xvid.avi	IntransBackward	IntransBackward	StarMOOP	114.00
+SNAP Control Backward Intrans-Apple ProRes 422_xvid.avi	IntransBackward	IntransBackward	ResponseMOOP	117.00
+SNAP Control Backward Intrans-Apple ProRes 422_xvid.avi	IntransBackward	IntransBackward	SalienceFEZ	133.24
+SNAP Control Backward Intrans-Apple ProRes 422_xvid.avi	IntransBackward	IntransBackward	StarFEZ	158.28
+SNAP Control Backward Intrans-Apple ProRes 422_xvid.avi	IntransBackward	IntransBackward	ResponseFEZ	161.20
+SNAP Control Forward Intrans-Apple ProRes 422_xvid.avi	IntransForward	IntransForward	SalienceFEZ	0.00
+SNAP Control Forward Intrans-Apple ProRes 422_xvid.avi	IntransForward	IntransForward	StarFEZ	25.08
+SNAP Control Forward Intrans-Apple ProRes 422_xvid.avi	IntransForward	IntransForward	ResponseFEZ	28.04
+SNAP Control Forward Intrans-Apple ProRes 422_xvid.avi	IntransForward	IntransForward	SalienceMOOP	44.48
+SNAP Control Forward Intrans-Apple ProRes 422_xvid.avi	IntransForward	IntransForward	StarMOOP	69.56
+SNAP Control Forward Intrans-Apple ProRes 422_xvid.avi	IntransForward	IntransForward	ResponseMOOP	72.52
+SNAP Control Forward Intrans-Apple ProRes 422_xvid.avi	IntransForward	IntransForward	SalienceLORP	88.96
+SNAP Control Forward Intrans-Apple ProRes 422_xvid.avi	IntransForward	IntransForward	StarLORP	114.00
+SNAP Control Forward Intrans-Apple ProRes 422_xvid.avi	IntransForward	IntransForward	ResponseLORP	117.00
+SNAP Control Forward Intrans-Apple ProRes 422_xvid.avi	IntransForward	IntransForward	SalienceBIFF	133.24
+SNAP Control Forward Intrans-Apple ProRes 422_xvid.avi	IntransForward	IntransForward	StarBIFF	158.28
+SNAP Control Forward Intrans-Apple ProRes 422_xvid.avi	IntransForward	IntransForward	ResponseBIFF	161.20
+SNAP Control Forward Trans-Apple ProRes 422_xvid.avi	TransForward	TransForward	SalienceFEZ	0.00
+SNAP Control Forward Trans-Apple ProRes 422_xvid.avi	TransForward	TransForward	StarFEZ	25.08
+SNAP Control Forward Trans-Apple ProRes 422_xvid.avi	TransForward	TransForward	ResponseFEZ	28.04
+SNAP Control Forward Trans-Apple ProRes 422_xvid.avi	TransForward	TransForward	SalienceMOOP	44.48
+SNAP Control Forward Trans-Apple ProRes 422_xvid.avi	TransForward	TransForward	StarMOOP	69.56
+SNAP Control Forward Trans-Apple ProRes 422_xvid.avi	TransForward	TransForward	ResponseMOOP	72.52
+SNAP Control Forward Trans-Apple ProRes 422_xvid.avi	TransForward	TransForward	SalienceLORP	88.96
+SNAP Control Forward Trans-Apple ProRes 422_xvid.avi	TransForward	TransForward	StarLORP	114.00
+SNAP Control Forward Trans-Apple ProRes 422_xvid.avi	TransForward	TransForward	ResponseLORP	117.00
+SNAP Control Forward Trans-Apple ProRes 422_xvid.avi	TransForward	TransForward	SalienceBIFF	133.24
+SNAP Control Forward Trans-Apple ProRes 422_xvid.avi	TransForward	TransForward	StarBIFF	158.28
+SNAP Control Forward Trans-Apple ProRes 422_xvid.avi	TransForward	TransForward	ResponseBIFF	161.20
+SNAP Control Backward Trans-Apple ProRes 422_xvid.avi	TransBackward	TransBackward	SalienceBIFF	0.00
+SNAP Control Backward Trans-Apple ProRes 422_xvid.avi	TransBackward	TransBackward	StarBIFF	25.08
+SNAP Control Backward Trans-Apple ProRes 422_xvid.avi	TransBackward	TransBackward	ResponseBIFF	28.04
+SNAP Control Backward Trans-Apple ProRes 422_xvid.avi	TransBackward	TransBackward	SalienceLORP	44.48
+SNAP Control Backward Trans-Apple ProRes 422_xvid.avi	TransBackward	TransBackward	StarLORP	69.56
+SNAP Control Backward Trans-Apple ProRes 422_xvid.avi	TransBackward	TransBackward	ResponseLORP	72.56
+SNAP Control Backward Trans-Apple ProRes 422_xvid.avi	TransBackward	TransBackward	SalienceMOOP	88.96
+SNAP Control Backward Trans-Apple ProRes 422_xvid.avi	TransBackward	TransBackward	StarMOOP	114.00
+SNAP Control Backward Trans-Apple ProRes 422_xvid.avi	TransBackward	TransBackward	ResponseMOOP	117.00
+SNAP Control Backward Trans-Apple ProRes 422_xvid.avi	TransBackward	TransBackward	SalienceFEZ	133.24
+SNAP Control Backward Trans-Apple ProRes 422_xvid.avi	TransBackward	TransBackward	StarFEZ	158.28
+SNAP Control Backward Trans-Apple ProRes 422_xvid.avi	TransBackward	TransBackward	ResponseFEZ	161.20
+SNAP Control Condition Transitive_xvid.avi	TransForward	TransForward	SalienceFEZ	0.00
+SNAP Control Condition Transitive_xvid.avi	TransForward	TransForward	StarFEZ	25.08
+SNAP Control Condition Transitive_xvid.avi	TransForward	TransForward	ResponseFEZ	28.04
+SNAP Control Condition Transitive_xvid.avi	TransForward	TransForward	SalienceMOOP	44.48
+SNAP Control Condition Transitive_xvid.avi	TransForward	TransForward	StarMOOP	69.56
+SNAP Control Condition Transitive_xvid.avi	TransForward	TransForward	ResponseMOOP	72.52
+SNAP Control Condition Transitive_xvid.avi	TransForward	TransForward	SalienceLORP	88.96
+SNAP Control Condition Transitive_xvid.avi	TransForward	TransForward	StarLORP	114.00
+SNAP Control Condition Transitive_xvid.avi	TransForward	TransForward	ResponseLORP	117.00
+SNAP Control Condition Transitive_xvid.avi	TransForward	TransForward	SalienceBIFF	133.24
+SNAP Control Condition Transitive_xvid.avi	TransForward	TransForward	StarBIFF	158.28
+SNAP Control Condition Transitive_xvid.avi	TransForward	TransForward	ResponseBIFF	161.20
+SNAPControlConditionTransitive_xvid.avi	TransForward	TransForward	SalienceFEZ	0.00
+SNAPControlConditionTransitive_xvid.avi	TransForward	TransForward	StarFEZ	25.08
+SNAPControlConditionTransitive_xvid.avi	TransForward	TransForward	ResponseFEZ	28.04
+SNAPControlConditionTransitive_xvid.avi	TransForward	TransForward	SalienceMOOP	44.48
+SNAPControlConditionTransitive_xvid.avi	TransForward	TransForward	StarMOOP	69.56
+SNAPControlConditionTransitive_xvid.avi	TransForward	TransForward	ResponseMOOP	72.52
+SNAPControlConditionTransitive_xvid.avi	TransForward	TransForward	SalienceLORP	88.96
+SNAPControlConditionTransitive_xvid.avi	TransForward	TransForward	StarLORP	114.00
+SNAPControlConditionTransitive_xvid.avi	TransForward	TransForward	ResponseLORP	117.00
+SNAPControlConditionTransitive_xvid.avi	TransForward	TransForward	SalienceBIFF	133.24
+SNAPControlConditionTransitive_xvid.avi	TransForward	TransForward	StarBIFF	158.28
+SNAPControlConditionTransitive_xvid.avi	TransForward	TransForward	ResponseBIFF	161.20
