@@ -33,13 +33,13 @@ def modInterp(predX, xvals, yvals):
 #print(modInterp(-1, [0,1,2,3], [-3,99.27,2,0]))
 #print(modInterp(3.5, [0,1,2,3], [-3,99.27,2,0]))
 
-#Again, the issue of "What if the 'Category Right' thing changes mid-way" also needs to be asked about in the next meeting...
-
 #Option to have original non-conforming entries "forgotten" when writing to the new file, as well as
 #   option of FPS of which ms intervals to interpolate,
 #   option of extrapolating data (for a given trial) outside the range of entries based on the last 2 data entries
-def interpolate(filename, fps, delete=False, lastData=False):
-    begin = time.time()
+
+#She said that the lastData and delete options should be, by default, True
+def interpolate(filename, outputFile, fps, delete=True, lastData=True):
+    #begin = time.time()
     if (fps <= 0):
         print("Cannot have a non-positive value for fps")
         return
@@ -47,7 +47,7 @@ def interpolate(filename, fps, delete=False, lastData=False):
     #turning fps into milliseconds-per-frame
     mspf = (1.0/fps)*1000
 
-    with open(filename) as tsv, open('newOutput.tsv', 'w') as out:
+    with open(filename) as tsv, open(outputFile, 'w') as out:
         read = csv.reader(tsv, delimiter = "\t")
 
         #write the first line of the old file into the new format, which
@@ -117,12 +117,14 @@ def interpolate(filename, fps, delete=False, lastData=False):
                             newLine[18] = str(modInterp(startMS, [float(prev[0]), float(prev2[0])], [float(prev[18]), float(prev2[18])]))
 
                             #Comment out later -- was just to see which entries in the new file were interpolated
-                            newLine.append('Interpolated')
+                            #newLine.append('Interpolated')
                             
                             out.write("\t".join(newLine)+"\n")
 
                     #Write the 'Separator' line, marking the start of the trial, to the new file
-                    out.write("\t".join(line)+"\n")
+		    #-->She said she didn't want the 'Separator' line in the final output file
+                    #out.write("\t".join(line)+"\n")
+                    
                     #Initialize the prev and startLine references to the first entry after the 'Separator' line,
                     #as well as the startMS for the beginning RecordingTime of the trial
                     startLine = next(read)
@@ -205,7 +207,7 @@ def interpolate(filename, fps, delete=False, lastData=False):
                     newLine[18] = str(np.interp(startMS, [float(prev[0]), float(line[0])], [float(prev[18]), float(line[18])]))
 
                     #Comment out later -- was just to see which entries in the new file were interpolated
-                    newLine.append('Interpolated')
+                    #newLine.append('Interpolated')
                     
                     out.write("\t".join(newLine)+"\n")
 
@@ -231,13 +233,10 @@ def interpolate(filename, fps, delete=False, lastData=False):
             #i += 1
 
         #Just to see how long the whole script takes
-        print("Finished in {0} seconds".format(time.time() - begin))
+        #print("Finished in {0} seconds".format(time.time() - begin))
 
-#Over 28,497 entries:
-#interpolate('new.tsv', 75, delete=True)#takes 2.613 seconds
-#interpolate('new.tsv', 75, lastData=True)#takes 2.787 seconds
-#interpolate('new.tsv', 75, True, True)#takes 2.614 seconds 
-#interpolate('new.tsv', 75)#takes 2.760 seconds
+#Over 28,497 entries: takes ~2.7 seconds
+interpolate('new.tsv', 'newOutput.tsv', 75, delete=True)
 
 
 
