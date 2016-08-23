@@ -1,0 +1,80 @@
+(I'm assuming we're ignoring the find_looks(), concat_csv(), and bin_var() functions in process_tobii_data.bf.R)
+
+process_tobii <- function(tobiifile, aoifile, phasefile, condition, trialorder, outputfile=NULL):
+
+READ THE DATA (BEGINNING WITH COLUMN HEADERS) INTO A DATA FRAME (e.g., TABLE OBJECT)
+		- Note: apparently R is 1-indexed
+	- Read the tobiifile, with the headers as the first row
+	- Create a 'Condition' and 'TrialOrder' column, with just repeating values of the passed-in args of condition and trialorder
+	- Rename a bunch of column headers (GazePointRightX, GazePointRightY, GazePointLeftX, GazePointLeftY, GazePointY, GazePointX, StudioTest, Gender, MovieName)
+	- Remove all rows with entries where the MovieName column is empty, or it says "MovieStart" or "MovieEnd"
+LOAD PHASE TIMING FILE AND MERGE WITH MAIN DATA FRAME
+	- Read the phasefile, ditto with headers
+	- Any row in the tobiifile with the 'MovieName' value matching the 'Filename' value in (one of several) rows of phasefile, add to that tobiifile row
+		the corresponding column values of 'Trial' and 'Phase' of phasefile (which both seem to always contain the same exact info for any given row); 
+		any tobiifile row without a corresponding match, just add NA for under the corresponding columns 'Trial' and 'Phase'
+	- (Reorder the tobiifile by the 'RecordingTimestamp' column's values, because the merging process in R might have reordered the rows by accident)
+		- Note: levels are the distinct values of a given column (so if a column had data like 1 2 3 4 1 2 3 2 3 2 1 2 3 4, the levels would be 1 2 3 4)
+FILL IN NA GAPS IN TRIAL COLUMN
+	- So I'm guessing the whole point of fillNAgaps is to, just for the 'Trial' column -- if any NA values are encountered, fill them with the most-recent
+		non-NA value in time in the 'Trial' column
+		- Note: hierarchial structure to the data, of Subject -> Condition -> Trial (MovieName) -> Phase -> Subphase
+			"# Each combination of values for each of these variables is assumed to demarcate
+			# a single, unique block, where the timings will run from 0, 1, etc.
+			# If there is ever more than one block with the same combination of these values, the
+			# timings for the subsequent blocks will be wrong."
+ADD TIMINGS FOR MOVIENAME, TRIAL, PHASE
+	- Create two new columns called "FramesFromMovieOnset" and "FramesFromPhaseOnset", all temporarily filled in with 0 for now
+	- Process all rows by first: unique ParticipantNames (so if we had, in the data table under "ParticipantNames", [Sally, Sally, Johnny, Jessie, Sally, Johnny],
+		we would process the rows [0,1,4] for the key 'Sally', then [2,5] for the key 'Johnny', then [3] for 'Jessie')
+		- All NA's in these rows are turned to False
+		- Now, for each ParticipantName block-group, further only process those rows whose 'Condition' column matches the specified condition 
+			(but isn't it always only one condition for the entire batch of the file?)
+			- All NA's in this subset of the subset of the rows are False (isn't this redundant, as per the first "turn all NA's in these rows to False"?)
+			- Ditto for 'MovieNames' for every unique 'MovieName' level for the entire file
+				- Ditto for the NA's --> False in this subset of rows
+				- Add, for this subset of rows (by ParticipantName --> Condition --> MovieName), under the FramesFromMovieOnset column, a 0-indexed ordering
+					(so if we had a subset of rows matching the above 3 subdivisions, no matter how spread out they are over all the rows, the first one in
+					the subset would have under FramesFromMovieOnset 0, then the second would have 1, third 3, etc.)
+			- Ditto for 'Trial' for every unique 'Trial' level for the entire file (so 2 separate for-loops nested within a for-loop nested within a for-loop)
+				- Ditto for the NA's --> False in this subset of rows
+				- Ditto for 'Phase' for every unique 'Phase' level for the entire file
+					- Ditto for the NA's --> False in this subset of rows
+					- Add, for this subset of rows (by ParticipantName --> Condition --> Trial --> Phase), under the FramesFromPhaseOnset column, a 0-indexed ordering
+						(so if we had a subset of rows matching the above 4 subdivisions, no matter how spread out they are over all the rows, the first one in
+						the subset would have under FramesFromPhaseOnset 0, then the second would have 1, third 3, etc.)
+	- Create two new columns called "TimeFromMovieOnset" and "TimeFromPhaseOnset", whose value for each row is just that row's corresponding round((("FramesFromMovieOnset" 
+		or "FramesFromPhaseOnset") * 1000)/60) --> I have no idea why, it just says "The data is collected at 60Hz" so it's calculating the time in ms for each frame
+FIND CURRENT SUBPHASE
+	- Create a new column called "Subphase", whose values can only take the set of unique values of 'Subphase' in the phasefile
+	- For each unique pair of ('Trial', 'Subphase') values from the original phasefile (so if the phasefile had unique Trial values of [1,2] and unique Subphase values
+		of [a,b], then for [(1,a), (1,b), (2,a), (2,b)]...), get the subset of rows that match the pair of values, and...
+		- Get the subset of rows from the phasefile who match the pair of values, order them by 'Starting_time', and for each of these phasefile rows...
+			- For each row of the current subset of tobii_file rows, mark its 'Subphase' column the corresponding 'Subphase' value of the subset of phasefile rows
+				if its TimeFromPhaseOnset >= that phasefile row's Starting_time*1000 (convert to ms)
+				- Note: so, since we ordered the subset of phasefile rows by Starting_time, we'll be overwriting the tobii_file rows multiple times, successively
+					replacing the 'Subphase' value until we get to the 'Subphase' value of the phasefile row with the "closest-lesser" Starting_time(*1000)
+ADD SUBPHASE TIMINGS
+	- Create a new column called 'FramesFromSubphaseOnset', with all values 0 for now
+	- For each unique group of rows in the tobii-file by (ParticipantName, Condition, Trial, Phase, Subphase), make any NA values False (again, seemingly redundant), 
+		and add a 0-indexed ordering among that group
+	- Also create a new column called 'TimeFromSubphaseOnset', and for each row, 'TimeFromSubphaseOnset' = round(FramesFromSubphaseOnset*1000/60)
+LOAD AOI
+	- Read in the aoifile, ditto with headers
+	- Find the min-X,Y and max-X,Y values of the area-of-interest (so basically ignoring the top-left and bottom-right corners (and corresponding columns in the aoifile) 
+		of the aoi "square")
+	- For all rows in the tobiifile:
+		- If both ValidityLeft & ValidityRight individually have values of 0 or 1, that row's 'GazeXAvg' is ('GazePointLeftX' + 'GazePointRightX')/2; ditto for GazeYAvg
+		- Else if only only one of ValidityLeft/Right has a value of 0 or 1, then that row's GazeXAvg is just that GazePointLeft/RightX and ditto for GazeYAvg
+		- Else that row's GazeXAvg is set to -999, ditto for GazeYAvg
+		- (They also do a little check that the values in the aoifile for GazePointX/Y/Left/Right were correctly inputted/formatted)
+	- Create 3 new columns called 'SceneName', 'Position', 'SceneType', each of which can only take the unique values present in the corresponding columns in the aoifile,
+		and some value called "TrackLoss"
+	- For each row in tobiifile (whose 'Trial' value isn't NA),
+		- For each of the subset of rows in the aoifile whose 'Trial' value matches this row,
+			- If the tobiifile row's GazeXAvg > the aoifile row's xmin and < its xmax (ditto for GazeYAvg), then write to this tobiifile row's SceneName, Position, and 
+				SceneType columns the corresponding columns in this aoifile row
+			- (This implicitly assumes that each of the subset of rows in the aoifile whose 'Trial' value matches have exclusive regions of 2D space in the area-of-interest)
+		- And if this row's GazeXAvg and GazeYAvg was -999, make the SceneName, Position, and SceneType columns instead = "TrackLoss"
+WRITE RESULTS
+	- Write the results to the new outputfile
