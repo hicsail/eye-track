@@ -1,5 +1,5 @@
+---tobii_script for Old Data Format---
 (I'm assuming we're ignoring the find_looks(), concat_csv(), and bin_var() functions in process_tobii_data.bf.R)
-
 process_tobii <- function(tobiifile, aoifile, phasefile, condition, trialorder, outputfile=NULL):
 
 READ THE DATA (BEGINNING WITH COLUMN HEADERS) INTO A DATA FRAME (e.g., TABLE OBJECT)
@@ -7,7 +7,7 @@ READ THE DATA (BEGINNING WITH COLUMN HEADERS) INTO A DATA FRAME (e.g., TABLE OBJ
 	- Read the tobiifile, with the headers as the first row
 	- Create a 'Condition' and 'TrialOrder' column, with just repeating values of the passed-in args of condition and trialorder
 	- Rename a bunch of column headers (GazePointRightX, GazePointRightY, GazePointLeftX, GazePointLeftY, GazePointY, GazePointX, StudioTest, Gender, MovieName)
-	- Remove all rows with entries where the MovieName column is empty, or it says "MovieStart" or "MovieEnd"
+	- Remove all rows with entries where the MovieName column is empty, or StudioEvent says "MovieStart" or "MovieEnd"
 LOAD PHASE TIMING FILE AND MERGE WITH MAIN DATA FRAME
 	- Read the phasefile, ditto with headers
 	- Any row in the tobiifile with the 'MovieName' value matching the 'Filename' value in (one of several) rows of phasefile, add to that tobiifile row
@@ -18,7 +18,7 @@ LOAD PHASE TIMING FILE AND MERGE WITH MAIN DATA FRAME
 FILL IN NA GAPS IN TRIAL COLUMN
 	- So I'm guessing the whole point of fillNAgaps is to, just for the 'Trial' column -- if any NA values are encountered, fill them with the most-recent
 		non-NA value in time in the 'Trial' column
-		- Note: hierarchial structure to the data, of Subject -> Condition -> Trial (MovieName) -> Phase -> Subphase
+		- Note: hierarchial structure to the data, of Subject -> Condition -> Trial (and MovieName) -> Phase -> Subphase
 			"# Each combination of values for each of these variables is assumed to demarcate
 			# a single, unique block, where the timings will run from 0, 1, etc.
 			# If there is ever more than one block with the same combination of these values, the
@@ -70,7 +70,7 @@ LOAD AOI
 		- (They also do a little check that the values in the aoifile for GazePointX/Y/Left/Right were correctly inputted/formatted)
 	- Create 3 new columns called 'SceneName', 'Position', 'SceneType', each of which can only take the unique values present in the corresponding columns in the aoifile,
 		and some value called "TrackLoss"
-	- For each row in tobiifile (whose 'Trial' value isn't NA),
+	- For each row in tobiifile (whose 'Trial' value isn't NA -- but why would it be if you filled in all the NA gaps for Trial already),
 		- For each of the subset of rows in the aoifile whose 'Trial' value matches this row,
 			- If the tobiifile row's GazeXAvg > the aoifile row's xmin and < its xmax (ditto for GazeYAvg), then write to this tobiifile row's SceneName, Position, and 
 				SceneType columns the corresponding columns in this aoifile row
@@ -78,3 +78,93 @@ LOAD AOI
 		- And if this row's GazeXAvg and GazeYAvg was -999, make the SceneName, Position, and SceneType columns instead = "TrackLoss"
 WRITE RESULTS
 	- Write the results to the new outputfile
+	- Note: new outputfile is in .csv format
+
+--- Old Data Format---
+Created Columns:
+	- Condition, TrialOrder, Trial, Phase, FramesFromMovieOnset, FramesFromPhaseOnset, TimeFromMovieOnset, TimeFromPhaseOnset, 
+		Subphase, FramesFromSubphaseOnset, TimeFromSubphaseOnset, SceneName, Position, SceneType, GazeXAvg, GazeYAvg
+Used Columns:
+	- Media/MovieName, GazePointRightX, GazePointRightY, GazePointLeftX, GazePointLeftY, GazePointY, GazePointX, StudioTestName, Gender,
+		ParticipantName, ValidityLeft, ValidityRight, RecordingTimestamp, StudioEvent
+	- (all of phasefile)
+	- (aoifile:) Trial, SceneName, Position, SceneType, Top Right, Bottom Left
+Irrelevant Columns:
+	- StudioProjectName, RecordingDate, RecordingDuration, RecordingName, KeyPressEvent
+	- (It seems also like 'X' was an auto-generated column by the tobii_script, that never contained anything but NA)
+Unused but Relevant Columns:
+	- PupilLeft, PupilRight
+Mapping from Used to Created Columns:
+	- (arg) 																							--> Condition
+	- (arg)																								--> TrialOrder
+	- Media/MovieName + (phasefile:) Filename, Trial, Phase												--> Trial, Phase
+	- ParticipantName, Media/MovieName, (created:) Condition											--> FramesFromMovieOnset, TimeFromMovieOnset
+	- ParticipantName, (created:) Condition, Trial, Phase												--> FramesFromPhaseOnset, TimeFromPhaseOnset
+	- (created:) TimeFromPhaseOnset + (phasefile:) Trial, Subphase, Starting_time						--> Subphase
+	- ParticipantName, (created:) Condition, Trial, Phase, Subphase										--> FramesFromSubphaseOnset, TimeFromSubphaseOnset
+	- GazePointLeftX, GazePointRightX, ValidityLeft, ValidityRight										--> GazeXAvg (ditto for GazeYAvg)
+	- GazeXAvg, GazeYAvg + (aoifile:) Trial, Top Right, Bottom Left, SceneName, Position, SceneType		--> SceneName, Position, SceneType
+	- StudioEvent																						--> (Just to eliminate rows)
+	- RecordingTimestamp																				--> (Just for ordering purposes)
+	- StudioTestName, Gender, GazePointX & Y															--> (Just for renaming purposes I guess)
+
+
+---New Data Format---
+Relevant Columns (as per the meeting on 8/19):
+	- RecordingTime, TimeOfDay, Stimulus, Participant, Pupil Diameter Right, Point of Regard X, Point of Regard Y
+Irrelevant Columns:
+	- Trial, Export Start Trial Time, Color, Tracking Ratio, Category Group, Index Right, AOI Name Right, Gaze Vector Right X & Y & Z, 
+		Annotation Name & Description & Tags, Mouse Position X & Y, Scroll Direction X & Y, Content
+In Question? Columns:
+	- Export End Trial Time
+		- My guess is that she doesn't need it, since there's no direct equivalent to the old data format
+	- Category Right
+		- My guess is that she doesn't need it, since there is a similar category in ISPY_P07 called (I think) GazeEventType that is irrelevant in the tobii_script
+Mapping from Old Data Columns to New Data Columns (Relevant Only):
+	- Media/MovieName																		--> Stimulus
+	- PupilLeft, PupilRight																	--> Pupil Diameter Right
+	- GazePointRightX&Y, GazePointLeftX&Y, GazePointX&Y, ValidityLeft, ValidityRight		--> Point of Regard X&Y
+	- ParticipantName																		--> Participant
+	- RecordingTimestamp																	--> RecordingTime (and, in another form, TimeOfDay)
+	- Gender, StudioEvent, StudioTestName													--> (discarded | NA)
+
+
+---tobii_script for New Data Format--- (design plan -- without aoifile or phasefile for the new data format, no way to test)
+(should take in the new data format AFTER a new interpolated data set has been created through interp.py)
+Mapping from New Data Format Columns to Created Columns:
+	- (arg)																								--> Condition
+	- (arg)																								--> TrialOrder
+	- Stimulus + (phasefile:) Filename, Trial, Phase													--> Trial, Phase
+	- Participant, Stimulus, (created:) Condition														--> FramesFromMovieOnset, TimeFromMovieOnset
+	- Participant, (created:) Condition, Trial, Phase													--> FramesFromPhaseOnset, TimeFromPhaseOnset
+	- (created:) TimeFromPhaseOnset + (phasefile:) Trial, Subphase, Starting_time						--> Subphase
+	- Participant, (created:) Condition, Trial, Phase, Subphase											--> FramesFromSubphaseOnset, TimeFromSubphaseOnset
+	- Point of Regard X&Y																				--> GazeX&YAvg
+	- Point of Regard X&Y + (aoifile:) Trial, Top Right, Bottom Left, SceneName, Position, SceneType	--> SceneName, Position, SceneType
+	- RecordingTime, TimeOfDay, Pupil Diameter Right													--> (keep as they are)
+(discard all other unmentioned columns)
+
+Therefore, headers of the output of the tobii_script for the New Data Format should look something like this:
+RecordingTime		Time of Day		Stimulus		Participant		Pupil Diameter Right		GazeXAvg		GazeYAvg		Condition		TrialOrder		Trial		FramesFromMovieOnset		TimeFromMovieOnset		Phase		FramesFromPhaseOnset		TimeFromPhaseOnset		Subphase		FramesFromSubphaseOnset		TimeFromSubphaseOnset		SceneName		Position		SceneType
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

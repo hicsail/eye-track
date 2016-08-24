@@ -236,7 +236,7 @@ def interpolate(filename, outputFile, fps, delete=True, lastData=True):
         #print("Finished in {0} seconds".format(time.time() - begin))
 
 #Over 28,497 entries: takes ~2.7 seconds
-interpolate('new.tsv', 'newOutput.tsv', 75, delete=True)
+interpolate('new.tsv', 'newInterp.tsv', 75)
 
 
 
