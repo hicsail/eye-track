@@ -7,7 +7,8 @@ READ THE DATA (BEGINNING WITH COLUMN HEADERS) INTO A DATA FRAME (e.g., TABLE OBJ
 	- Read the tobiifile, with the headers as the first row
 	- Create a 'Condition' and 'TrialOrder' column, with just repeating values of the passed-in args of condition and trialorder
 	- Rename a bunch of column headers (GazePointRightX, GazePointRightY, GazePointLeftX, GazePointLeftY, GazePointY, GazePointX, StudioTest, Gender, MovieName)
-	- Remove all rows with entries where the MovieName column is empty, or StudioEvent says "MovieStart" or "MovieEnd"
+	- If MovieName column is empty, replace with NA
+	- Remove all rows with entries where the StudioEvent says "MovieStart" or "MovieEnd"
 LOAD PHASE TIMING FILE AND MERGE WITH MAIN DATA FRAME
 	- Read the phasefile, ditto with headers
 	- Any row in the tobiifile with the 'MovieName' value matching the 'Filename' value in (one of several) rows of phasefile, add to that tobiifile row
