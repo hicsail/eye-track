@@ -1,15 +1,16 @@
 import numpy as np
 import csv
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 import random
 # import time
 import heapq
+import argparse
+import ast
 
 
-# modInterp is basically just interp, except if you try to interpolate data outside of the given range of x-values,
+# mod_interpolate is basically just np.interp, except if you try to interpolate data outside of the given range of x-values,
 # it still works
-def mod_interp(predX, xvals, yvals):
+def mod_interpolate(predX, xvals, yvals):
     if predX > max(xvals):
         p1 = (max(xvals), yvals[xvals.index(max(xvals))])
         second_biggest = heapq.nlargest(2, xvals)[-1]
@@ -33,7 +34,7 @@ def mod_interp(predX, xvals, yvals):
 #   option of extrapolating data (for a given trial) outside the range of entries based on the last 2 data entries
 
 
-def interpolate(filename, output_file, fps, delete=True, last_data=True):
+def interpolate(input_file, output_file, fps, delete=True, last_data=True):
     # begin = time.time()
     if fps <= 0:
         print("Cannot have a non-positive value for fps")
@@ -42,7 +43,7 @@ def interpolate(filename, output_file, fps, delete=True, last_data=True):
     # Turn fps into milliseconds-per-frame
     mspf = (1.0 / fps) * 1000
 
-    with open(filename) as tsv, open(output_file, 'w') as out:
+    with open(input_file, 'r', encoding='UTF-8') as tsv, open(output_file, 'w', encoding='UTF-8') as out:
         read = csv.reader(tsv, delimiter="\t")
 
         # write the first line of the old file into the new format, which
@@ -102,23 +103,23 @@ def interpolate(filename, output_file, fps, delete=True, last_data=True):
                             new_line[1] = time_of_day
                             # Interpolate the following categories, using last 2 data-entries, which would be stored in the prev and prev2 references
                             # Index 12: Pupil Diameter Right
-                            new_line[12] = str(mod_interp(start_ms, [float(prev[0]), float(prev2[0])],
-                                                         [float(prev[12]), float(prev2[12])]))
+                            new_line[12] = str(mod_interpolate(start_ms, [float(prev[0]), float(prev2[0])],
+                                                               [float(prev[12]), float(prev2[12])]))
                             # Index 13: Point of Regard Right X
-                            new_line[13] = str(mod_interp(start_ms, [float(prev[0]), float(prev2[0])],
-                                                         [float(prev[13]), float(prev2[13])]))
+                            new_line[13] = str(mod_interpolate(start_ms, [float(prev[0]), float(prev2[0])],
+                                                               [float(prev[13]), float(prev2[13])]))
                             # Index 14: Point of Regard Right Y
-                            new_line[14] = str(mod_interp(start_ms, [float(prev[0]), float(prev2[0])],
-                                                         [float(prev[14]), float(prev2[14])]))
+                            new_line[14] = str(mod_interpolate(start_ms, [float(prev[0]), float(prev2[0])],
+                                                               [float(prev[14]), float(prev2[14])]))
                             # Index 16: Gaze Vector Right X
-                            new_line[16] = str(mod_interp(start_ms, [float(prev[0]), float(prev2[0])],
-                                                         [float(prev[16]), float(prev2[16])]))
+                            new_line[16] = str(mod_interpolate(start_ms, [float(prev[0]), float(prev2[0])],
+                                                               [float(prev[16]), float(prev2[16])]))
                             # Index 17: Gaze Vector Right Y
-                            new_line[17] = str(mod_interp(start_ms, [float(prev[0]), float(prev2[0])],
-                                                         [float(prev[17]), float(prev2[17])]))
+                            new_line[17] = str(mod_interpolate(start_ms, [float(prev[0]), float(prev2[0])],
+                                                               [float(prev[17]), float(prev2[17])]))
                             # Index 18: Gaze Vector Right Z
-                            new_line[18] = str(mod_interp(start_ms, [float(prev[0]), float(prev2[0])],
-                                                         [float(prev[18]), float(prev2[18])]))
+                            new_line[18] = str(mod_interpolate(start_ms, [float(prev[0]), float(prev2[0])],
+                                                               [float(prev[18]), float(prev2[18])]))
 
                             # Comment out later -- was just to see which entries in the new file were interpolated
                             # newLine.append('Interpolated')
@@ -243,4 +244,22 @@ def interpolate(filename, output_file, fps, delete=True, last_data=True):
                             # print("Finished in {0} seconds".format(time.time() - begin))
 
 
-interpolate('new.tsv', 'newInterp.tsv', 75)
+def main():
+    parser = argparse.ArgumentParser(description='Interpolate data for eye tracker.')
+    parser.add_argument('-i', '--input', metavar='/input/file.tsv', type=str,
+                        help='path of the input file', required=True)
+    parser.add_argument('-o', '--output', metavar='/output/file.tsv', type=str,
+                        help='path of the output file', required=True)
+    parser.add_argument('--fps', type=int, help='frames per second of interpolation', required=True)
+    parser.add_argument('--delete', type=ast.literal_eval, metavar='True|False',
+                        help='delete existing values outside of interpolation, defaults to True',
+                        required=False, default=True)
+    parser.add_argument('--last', type=ast.literal_eval, metavar='True|False',
+                        help='keep last data, defaults to True', required=False, default=True)
+
+    args = parser.parse_args()
+    interpolate(args.input, args.output, args.fps, delete=args.delete, last_data=args.last)
+
+
+if __name__ == '__main__':
+    main()
