@@ -6,6 +6,7 @@ import random
 import heapq
 import argparse
 import ast
+from eyetrack import config
 
 
 # mod_interpolate is basically just np.interp, except if you try to interpolate data outside of the given range of x-values,
@@ -49,6 +50,21 @@ def interpolate(input_file, output_file, fps, delete=True, last_data=True):
         # write the first line of the old file into the new format, which
         # are the headers/categories
         first_line = next(read)
+
+        # Column indexes and naming might change. By moving this to a config file, the user can set it themselves
+        try:
+            column_indexes = {'RecordingTime': first_line.index(config.get('RecordingTime')),
+                              'TimeOfDay': first_line.index(config.get('TimeOfDay')),
+                              'PupilRight': first_line.index(config.get('PupilRight')),
+                              'RegardRightX': first_line.index(config.get('RegardRightX')),
+                              'RegardRightY': first_line.index(config.get('RegardRightY')),
+                              'GazeRightX': first_line.index(config.get('GazeRightX')),
+                              'GazeRightY': first_line.index(config.get('GazeRightY')),
+                              'GazeRightZ': first_line.index(config.get('GazeRightZ')),
+                              'Category': first_line.index(config.get('Category'))}
+        except ValueError as e:
+            quit('Column name not found, ' + e.__str__())
+
         out.write("\t".join(first_line) + "\n")
 
         # startMS is just to keep up with the updated RecordingTime [ms]
@@ -73,7 +89,7 @@ def interpolate(input_file, output_file, fps, delete=True, last_data=True):
             small_gap = False
             while not small_gap:
                 # At the start of a new trial line, demarcated by the 'Separator' in the 'Category'
-                if line[10] == 'Separator':
+                if line[column_indexes['Category']] == 'Separator':
                     # If the option of generating the last-data entry for a given trial is marked true, before updating
                     # the startLine and prev-line references, write to the new file this new interpolated entry
                     if last_data:
@@ -84,8 +100,9 @@ def interpolate(input_file, output_file, fps, delete=True, last_data=True):
 
                             # Convert the 'Time of Day' category of the previous line into a Python datetime object, then add to the date
                             # the difference in milliseconds between the interpolated entry's RecordingTime and the previous entry's RecordingTime
-                            time_of_day = datetime.strptime(prev[1] + "000", "%H:%M:%S:%f") + timedelta(
-                                milliseconds=(float(start_ms) - float(prev[0])))
+                            time_of_day = datetime.strptime(prev[column_indexes['TimeOfDay']] + "000",
+                                                            "%H:%M:%S:%f") + timedelta(
+                                milliseconds=(float(start_ms) - float(prev[column_indexes['RecordingTime']])))
 
                             # The following commented-out code was just for rounding purposes -- but I assumed the default was to always round-down
                             # the remaining microseconds
@@ -99,27 +116,70 @@ def interpolate(input_file, output_file, fps, delete=True, last_data=True):
 
                             # Basically just copy the previous line's filled categories, then modify the following index-categories
                             new_line = list(prev)
-                            new_line[0] = str(round(start_ms, 1))  # round to one-place to the one-tenth-millisecond
-                            new_line[1] = time_of_day
+                            new_line[column_indexes['RecordingTime']] = str(
+                                round(start_ms, 1))  # round to one-place to the one-tenth-millisecond
+                            new_line[column_indexes['TimeOfDay']] = time_of_day
                             # Interpolate the following categories, using last 2 data-entries, which would be stored in the prev and prev2 references
                             # Index 12: Pupil Diameter Right
-                            new_line[12] = str(mod_interpolate(start_ms, [float(prev[0]), float(prev2[0])],
-                                                               [float(prev[12]), float(prev2[12])]))
+                            new_line[column_indexes['PupilRight']] = str(mod_interpolate(start_ms,
+                                                                                         [float(prev[column_indexes[
+                                                                                             'RecordingTime']]),
+                                                                                          float(prev2[column_indexes[
+                                                                                              'RecordingTime']])],
+                                                                                         [float(prev[column_indexes[
+                                                                                             'PupilRight']]),
+                                                                                          float(prev2[column_indexes[
+                                                                                              'PupilRight']])]))
                             # Index 13: Point of Regard Right X
-                            new_line[13] = str(mod_interpolate(start_ms, [float(prev[0]), float(prev2[0])],
-                                                               [float(prev[13]), float(prev2[13])]))
+                            new_line[column_indexes['RegardRightX']] = str(mod_interpolate(start_ms,
+                                                                                           [float(prev[column_indexes[
+                                                                                               'RecordingTime']]),
+                                                                                            float(prev2[column_indexes[
+                                                                                                'RecordingTime']])],
+                                                                                           [float(prev[column_indexes[
+                                                                                               'RegardRightX']]),
+                                                                                            float(prev2[column_indexes[
+                                                                                                'RegardRightX']])]))
                             # Index 14: Point of Regard Right Y
-                            new_line[14] = str(mod_interpolate(start_ms, [float(prev[0]), float(prev2[0])],
-                                                               [float(prev[14]), float(prev2[14])]))
+                            new_line[column_indexes['RegardRightY']] = str(mod_interpolate(start_ms,
+                                                                                           [float(prev[column_indexes[
+                                                                                               'RecordingTime']]),
+                                                                                            float(prev2[column_indexes[
+                                                                                                'RecordingTime']])],
+                                                                                           [float(prev[column_indexes[
+                                                                                               'RegardRightY']]),
+                                                                                            float(prev2[column_indexes[
+                                                                                                'RegardRightY']])]))
                             # Index 16: Gaze Vector Right X
-                            new_line[16] = str(mod_interpolate(start_ms, [float(prev[0]), float(prev2[0])],
-                                                               [float(prev[16]), float(prev2[16])]))
+                            new_line[column_indexes['GazeRightX']] = str(mod_interpolate(start_ms,
+                                                                                         [float(prev[column_indexes[
+                                                                                             'RecordingTime']]),
+                                                                                          float(prev2[column_indexes[
+                                                                                              'RecordingTime']])],
+                                                                                         [float(prev[column_indexes[
+                                                                                             'GazeRightX']]),
+                                                                                          float(prev2[column_indexes[
+                                                                                              'GazeRightX']])]))
                             # Index 17: Gaze Vector Right Y
-                            new_line[17] = str(mod_interpolate(start_ms, [float(prev[0]), float(prev2[0])],
-                                                               [float(prev[17]), float(prev2[17])]))
+                            new_line[column_indexes['GazeRightY']] = str(mod_interpolate(start_ms,
+                                                                                         [float(prev[column_indexes[
+                                                                                             'RecordingTime']]),
+                                                                                          float(prev2[column_indexes[
+                                                                                              'RecordingTime']])],
+                                                                                         [float(prev[column_indexes[
+                                                                                             'GazeRightY']]),
+                                                                                          float(prev2[column_indexes[
+                                                                                              'GazeRightY']])]))
                             # Index 18: Gaze Vector Right Z
-                            new_line[18] = str(mod_interpolate(start_ms, [float(prev[0]), float(prev2[0])],
-                                                               [float(prev[18]), float(prev2[18])]))
+                            new_line[column_indexes['GazeRightZ']] = str(mod_interpolate(start_ms,
+                                                                                         [float(prev[column_indexes[
+                                                                                             'RecordingTime']]),
+                                                                                          float(prev2[column_indexes[
+                                                                                              'RecordingTime']])],
+                                                                                         [float(prev[column_indexes[
+                                                                                             'GazeRightZ']]),
+                                                                                          float(prev2[column_indexes[
+                                                                                              'GazeRightZ']])]))
 
                             # Comment out later -- was just to see which entries in the new file were interpolated
                             # newLine.append('Interpolated')
@@ -134,11 +194,11 @@ def interpolate(input_file, output_file, fps, delete=True, last_data=True):
                     # as well as the startMS for the beginning RecordingTime of the trial
                     start_line = next(read)
                     prev = start_line
-                    start_ms = float(start_line[0])
+                    start_ms = float(start_line[column_indexes['RecordingTime']])
                     out.write("\t".join(start_line) + "\n")
                     small_gap = True
                 # If the current read-line's RecordingTime - the startMS of the current time interval < mspf:
-                elif (float(line[0]) - start_ms) < mspf:
+                elif (float(line[column_indexes['RecordingTime']]) - start_ms) < mspf:
                     # If the option of lastData is true, also update the prev2 reference
                     if last_data:
                         prev2 = prev
@@ -150,11 +210,11 @@ def interpolate(input_file, output_file, fps, delete=True, last_data=True):
                     small_gap = True
                 # If the current read-line's RecordingTime - the startMS of the current time interval == mspf,
                 # AKA, the current data-entry conforms with the specified constant frame-rate -- write the current line
-                elif (float(line[0]) - start_ms) == mspf:
+                elif (float(line[column_indexes['RecordingTime']]) - start_ms) == mspf:
                     if last_data:
                         prev2 = prev
                     # The new time interval begins with the RecordingTime of this data-entry
-                    start_ms = float(line[0])
+                    start_ms = float(line[column_indexes['RecordingTime']])
                     prev = line
                     start_line = line
                     out.write("\t".join(line) + "\n")
@@ -168,8 +228,9 @@ def interpolate(input_file, output_file, fps, delete=True, last_data=True):
 
                     # Convert the 'Time of Day' category of the previous line into a Python datetime object, then add to the date
                     # the difference in milliseconds between the interpolated entry's RecordingTime and the previous entry's RecordingTime
-                    time_of_day = datetime.strptime(prev[1] + "000", "%H:%M:%S:%f") + timedelta(
-                        milliseconds=(float(start_ms) - float(prev[0])))
+                    time_of_day = datetime.strptime(prev[column_indexes['TimeOfDay']] + "000",
+                                                    "%H:%M:%S:%f") + timedelta(
+                        milliseconds=(float(start_ms) - float(prev[column_indexes['RecordingTime']])))
 
                     # Option of rounding time up or down
                     # if (timeOfDay.microsecond/1000.0) - int(timeOfDay.microsecond/1000.0) < 0.5:
@@ -185,9 +246,11 @@ def interpolate(input_file, output_file, fps, delete=True, last_data=True):
                     # or the current line's filled-in data -- so, on Frederick's suggestion, whichever data-entry is closer in time to
                     # the interpolated entry's RecordingTime gets precedence -- and if they're equally distant in time,
                     # idk just use Math.Random and flip a coin
-                    if (start_ms - float(prev[0])) < (float(line[0]) - start_ms):
+                    if (start_ms - float(prev[column_indexes['RecordingTime']])) < (
+                                float(line[column_indexes['RecordingTime']]) - start_ms):
                         new_line = list(prev)
-                    elif (start_ms - float(prev[0])) > (float(line[0]) - start_ms):
+                    elif (start_ms - float(prev[column_indexes['RecordingTime']])) > (
+                                float(line[column_indexes['RecordingTime']]) - start_ms):
                         new_line = list(line)
                     else:  # On Frederick's suggestion...
                         if random.random() > 0.5:
@@ -196,26 +259,44 @@ def interpolate(input_file, output_file, fps, delete=True, last_data=True):
                             new_line = list(line)
 
                     # Modify the following index-categories
-                    new_line[0] = str(round(start_ms, 1))
-                    new_line[1] = time_of_day
+                    new_line[column_indexes['RecordingTime']] = str(round(start_ms, 1))
+                    new_line[column_indexes['TimeOfDay']] = time_of_day
                     # Index 12: Pupil Diameter Right
-                    new_line[12] = str(
-                        np.interp(start_ms, [float(prev[0]), float(line[0])], [float(prev[12]), float(line[12])]))
+                    new_line[column_indexes['PupilRight']] = str(
+                        np.interp(start_ms, [float(prev[column_indexes['RecordingTime']]),
+                                             float(line[column_indexes['RecordingTime']])],
+                                  [float(prev[column_indexes['PupilRight']]),
+                                   float(line[column_indexes['PupilRight']])]))
                     # Index 13: Point of Regard Right X
-                    new_line[13] = str(
-                        np.interp(start_ms, [float(prev[0]), float(line[0])], [float(prev[13]), float(line[13])]))
+                    new_line[column_indexes['RegardRightX']] = str(
+                        np.interp(start_ms, [float(prev[column_indexes['RecordingTime']]),
+                                             float(line[column_indexes['RecordingTime']])],
+                                  [float(prev[column_indexes['RegardRightX']]),
+                                   float(line[column_indexes['RegardRightX']])]))
                     # Index 14: Point of Regard Right Y
-                    new_line[14] = str(
-                        np.interp(start_ms, [float(prev[0]), float(line[0])], [float(prev[14]), float(line[14])]))
+                    new_line[column_indexes['RegardRightY']] = str(
+                        np.interp(start_ms, [float(prev[column_indexes['RecordingTime']]),
+                                             float(line[column_indexes['RecordingTime']])],
+                                  [float(prev[column_indexes['RegardRightY']]),
+                                   float(line[column_indexes['RegardRightY']])]))
                     # Index 16: Gaze Vector Right X
-                    new_line[16] = str(
-                        np.interp(start_ms, [float(prev[0]), float(line[0])], [float(prev[16]), float(line[16])]))
+                    new_line[column_indexes['GazeRightX']] = str(
+                        np.interp(start_ms, [float(prev[column_indexes['RecordingTime']]),
+                                             float(line[column_indexes['RecordingTime']])],
+                                  [float(prev[column_indexes['GazeRightX']]),
+                                   float(line[column_indexes['GazeRightX']])]))
                     # Index 17: Gaze Vector Right Y
-                    new_line[17] = str(
-                        np.interp(start_ms, [float(prev[0]), float(line[0])], [float(prev[17]), float(line[17])]))
+                    new_line[column_indexes['GazeRightY']] = str(
+                        np.interp(start_ms, [float(prev[column_indexes['RecordingTime']]),
+                                             float(line[column_indexes['RecordingTime']])],
+                                  [float(prev[column_indexes['GazeRightY']]),
+                                   float(line[column_indexes['GazeRightY']])]))
                     # Index 18: Gaze Vector Right Z
-                    new_line[18] = str(
-                        np.interp(start_ms, [float(prev[0]), float(line[0])], [float(prev[18]), float(line[18])]))
+                    new_line[column_indexes['GazeRightZ']] = str(
+                        np.interp(start_ms, [float(prev[column_indexes['RecordingTime']]),
+                                             float(line[column_indexes['RecordingTime']])],
+                                  [float(prev[column_indexes['GazeRightZ']]),
+                                   float(line[column_indexes['GazeRightZ']])]))
 
                     # Comment out later -- was just to see which entries in the new file were interpolated
                     # newLine.append('Interpolated')
@@ -232,7 +313,7 @@ def interpolate(input_file, output_file, fps, delete=True, last_data=True):
                     # if the difference between the new interpolated entry's RecordingTime and the current line's RecordingTime
                     # is STILL larger than the specified frame-rate interval, then we have to interpolate more data-entries
                     # to fill in this 'large gap' of milliseconds
-                    if (float(line[0]) - start_ms) < mspf:
+                    if (float(line[column_indexes['RecordingTime']]) - start_ms) < mspf:
                         small_gap = True
                         if last_data:
                             prev2 = prev
