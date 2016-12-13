@@ -43,7 +43,7 @@ def mod_interpolate(predX, xvals, yvals):
 #   option of extrapolating data (for a given trial) outside the range of entries based on the last 2 data entries
 
 
-def interpolate(input_file, output_file, fps, delete=True, last_data=True):
+def interpolate(input_file, output_file, fps, delete=True, last_data=True, file_type='csv'):
     # begin = time.time()
     if fps <= 0:
         print("Cannot have a non-positive value for fps")
@@ -53,7 +53,10 @@ def interpolate(input_file, output_file, fps, delete=True, last_data=True):
     mspf = (1.0 / fps) * 1000
 
     with open(input_file, 'r', encoding='UTF-8') as tsv, open(output_file, 'w', encoding='UTF-8') as out:
-        read = csv.reader(tsv, delimiter="\t")
+        if file_type is 'csv':
+            read = csv.reader(tsv, delimiter=',')
+        else:
+            read = csv.reader(tsv, delimiter='\t')
 
         # write the first line of the old file into the new format, which
         # are the headers/categories
@@ -346,8 +349,12 @@ def main():
     parser.add_argument('--last', type=ast.literal_eval, metavar='True|False',
                         help='keep last data, defaults to True', required=False, default=True)
 
+    parser.add_argument('-t', '--type', type=str, metavar='csv|tsv',
+                        help='interpret input file as csv or tsv, defaults to csv',
+                        required=False, default='csv')
+
     args = parser.parse_args()
-    interpolate(args.input, args.output, args.fps, delete=args.delete, last_data=args.last)
+    interpolate(args.input, args.output, args.fps, delete=args.delete, last_data=args.last, file_type=args.type)
 
 
 if __name__ == '__main__':
