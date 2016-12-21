@@ -53,7 +53,7 @@ def interpolate(input_file, output_file, fps, delete=True, last_data=True, file_
     mspf = (1.0 / fps) * 1000
 
     with open(input_file, 'r', encoding='UTF-8') as tsv, open(output_file, 'w', encoding='UTF-8') as out:
-        if file_type is 'csv':
+        if file_type == 'csv':
             read = csv.reader(tsv, delimiter=',')
         else:
             read = csv.reader(tsv, delimiter='\t')
