@@ -6,7 +6,7 @@ run. You can view the usage details through ```$ python eyetrack/interpolate.py 
 
 ```
 usage: interpolate.py [-h] -i /input/file.tsv -o /output/file.tsv --fps FPS
-                      [--delete True|False] [--last True|False]
+                      [--delete True|False] [--type csv|tsv]
 
 Interpolate data for eye tracker.
 
@@ -19,5 +19,6 @@ optional arguments:
   --fps FPS             frames per second of interpolation
   --delete True|False   delete existing values outside of interpolation,
                         defaults to True
-  --last True|False     keep last data, defaults to True
+  --type csv|tsv        interpret input file as csv or tsv,
+                        defaults to csv
 ```
