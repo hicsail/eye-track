@@ -263,6 +263,19 @@ def interpolate(input_file, output_file, fps, delete=True, last_data=True, file_
                     elif (start_ms - float(prev[column_indexes['RecordingTime']])) > (
                                 float(line[column_indexes['RecordingTime']]) - start_ms):
                         new_line = list(line)
+
+                    # Ensure all input values are numeric, otherwise set to 0
+                    for i in column_indexes:
+                        if i == 'Category' or i == 'TimeOfDay':
+                            continue
+                        try:
+                            float(line[column_indexes[i]])
+                        except ValueError:
+                            line[column_indexes[i]] = '0'
+                        try:
+                            float(prev[column_indexes[i]])
+                        except ValueError:
+                            prev[column_indexes[i]] = '0'
                     else:  # On Frederick's suggestion...
                         if random.random() > 0.5:
                             new_line = list(prev)
