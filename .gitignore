@@ -87,3 +87,8 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# Project test files
+*.tsv
+*.csv
+data-samples/
