@@ -91,4 +91,3 @@ ENV/
 # Project test files
 *.tsv
 *.csv
-data-samples/

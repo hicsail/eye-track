@@ -1,9 +1,0 @@
-Trial	SceneName	Position	SceneType	Top Left (x,y)	Top Right (x,y)	Bottom Right (x,y)	Bottom Left (x,y)
-TransForward	Left	Left	Left	0,332	640,332	640,956	0,956
-TransForward	Right	Right	Right	1280,244	1920,244	1920,956	1280,956
-IntransForward	Left	Left	Left	0,332	640,332	640,956	0,956
-IntransForward	Right	Right	Right	1280,244	1920,244	1920,956	1280,956
-TransBackward	Left	Left	Left	0,332	640,332	640,956	0,956
-TransBackward	Right	Right	Right	1280,244	1920,244	1920,956	1280,956
-IntransBackward	Left	Left	Left	0,332	640,332	640,956	0,956
-IntransBackward	Right	Right	Right	1280,244	1920,244	1920,956	1280,956
