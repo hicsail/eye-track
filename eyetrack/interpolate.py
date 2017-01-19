@@ -214,7 +214,7 @@ def main():
                         help='path of the input file', required=True)
     parser.add_argument('-o', '--output', metavar='/output/file.tsv', type=str,
                         help='path of the output file', required=True)
-    parser.add_argument('--fps', type=int, help='frames per second of interpolation', required=True)
+    parser.add_argument('--fps', type=int, help='intended sample rate per seconds', required=True)
     parser.add_argument('--delete', type=ast.literal_eval, metavar='True|False',
                         help='delete existing values outside of interpolation, defaults to True',
                         required=False, default=True)
