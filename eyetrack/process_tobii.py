@@ -4,12 +4,17 @@ import argparse
 # Slight implementation note: I actually accidentally wrote all the string-values to the outputfile.csv as 'some_string', whereas
 # I didn't notice after the fact that all such string values in the original input files are written as '"some_string"', and written to
 # the outputfile.csv that way...
-def process_tobii(tobiifile, aoifile, phasefile, outputfile, condition, trialorder):
+def process_tobii(tobiifile, aoifile, phasefile, outputfile, condition, trialorder, file_type):
     # Read the files in as 2D arrays
     with open(tobiifile) as t, open(aoifile) as a, open(phasefile) as phaseTiming:
-        tobii = [line.split("\t")[:-1] for line in t]
-        aoi = [line.strip().split("\t") for line in a]
-        phase = [line.strip().split("\t") for line in phaseTiming]
+        if file_type == 'csv':
+            tobii = [line.split(",")[:-1] for line in t]
+            aoi = [line.strip().split(",") for line in a]
+            phase = [line.strip().split(",") for line in phaseTiming]
+        else:
+            tobii = [line.split("\t")[:-1] for line in t]
+            aoi = [line.strip().split("\t") for line in a]
+            phase = [line.strip().split("\t") for line in phaseTiming]
 
     # I declared a ton of variables that would make it easier (in case certain column-indices switched around in different file formats)
     # to simply store the given index of a specific column at the beginning (from the column-headers), and then continually use that stored index throughout,
@@ -372,9 +377,12 @@ def main():
                         help='condition', required=False, default='Intransitive')
     parser.add_argument('--order', metavar='Backward', type=str,
                         help='order', required=False, default='Backward')
+    parser.add_argument('-t', '--type', type=str, metavar='csv|tsv',
+                        help='interpret input files as csv or tsv, defaults to csv',
+                        required=False, default='csv')
 
     args = parser.parse_args()
-    process_tobii(args.input, args.aoi, args.phase, args.output, args.condition, args.order)
+    process_tobii(args.input, args.aoi, args.phase, args.output, args.condition, args.order, args.type)
 
 
 if __name__ == '__main__':
